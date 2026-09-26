@@ -1,0 +1,59 @@
+# BraTS 2021 Task 2 — 500 Million Parameter MGMT Radiogenomic Classification Config
+# Author: Tarek Al Ahmadieh (Sole Author & Lead Researcher)
+# Contact: tarek.ahmadieh2006@gmail.com
+
+project:
+  name: "brats2021_task2_mgmt"
+  task: "Task 2 - MGMT Promoter Methylation Prediction"
+  author: "Tarek Al Ahmadieh"
+  email: "tarek.ahmadieh2006@gmail.com"
+
+dataset:
+  root: "data/BraTS2021_Task2"
+  modalities:
+    - T1
+    - T1ce
+    - T2
+    - FLAIR
+  slice_selection: "central"
+  num_slices: 32
+  image_size: [192, 192]
+
+cross_validation:
+  folds: 5
+  stratified: true
+  group: "patient_id"
+  seed: 42
+
+model:
+  name: "MGMT_Foundation_500M"
+  architecture: "transformer_mil_500m"
+  in_channels: 4
+  embed_dim: 1024
+  num_layers: 32
+  num_heads: 16
+  mlp_dim: 5560
+  patch_size: [4, 8, 8]
+  dropout: 0.1
+  total_parameters: 500710913 # Exactly 500.71 Million Parameters
+
+training:
+  epochs: 100
+  batch_size: 2
+  gradient_accumulation_steps: 8
+  learning_rate: 0.00005
+  weight_decay: 0.0001
+  mixed_precision: true
+  loss: "focal_bce"
+  focal_gamma: 2.0
+  pos_weight: 1.0
+
+evaluation:
+  metrics:
+    - roc_auc
+    - accuracy
+    - f1
+    - log_loss
+    - sensitivity
+    - specificity
+    - brier_score

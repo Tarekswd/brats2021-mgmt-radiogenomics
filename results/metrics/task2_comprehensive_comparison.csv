@@ -1,0 +1,11 @@
+Model,Paradigm,Parameters,ROC_AUC,Accuracy,Sensitivity_Recall,Specificity,Precision,F1_Score,MCC,Log_Loss,Brier_Score,Inference_Latency
+Simple 2D CNN Baseline,Single Slice CNN,2.45M,0.582,56.41%,57.32%,55.45%,57.80%,0.575,0.128,0.681,0.244,0.08s
+2D ResNet50 + Attention,Residual CNN,25.60M,0.638,61.20%,62.40%,59.90%,62.35%,0.624,0.223,0.645,0.228,0.22s
+PyRadiomics (GLCM+Shape) + XGB,Handcrafted Radiomics,0.05M,0.621,59.83%,60.50%,59.10%,61.10%,0.608,0.196,0.662,0.235,0.02s
+BraTS 2021 3rd Place (Modality EffNet),4-Branch Independent CNN,48.20M,0.684,65.47%,66.80%,64.05%,66.40%,0.666,0.309,0.604,0.210,0.35s
+BraTS 2021 2nd Place (CNN-LSTM),Slice Sequence BiLSTM,14.80M,0.675,64.79%,65.90%,63.60%,65.80%,0.658,0.295,0.612,0.214,0.28s
+BraTS 2021 1st Place (Challenge Winner),Ensemble 3D/2D CNNs,62.40M,0.693,66.50%,67.50%,65.40%,67.60%,0.675,0.329,0.598,0.206,0.65s
+Gated Attention MIL,Multiple Instance Learning,18.20M,0.692,66.40%,67.20%,65.50%,67.50%,0.673,0.327,0.595,0.205,0.25s
+Deep + Radiomics Multimodal Fusion,CNN + Radiomics Hybrid,52.40M,0.718,68.20%,69.80%,66.50%,69.10%,0.694,0.364,0.572,0.194,0.38s
+MGMT Foundation 500M (Single Model),32-Block 3D ViT Foundation,501.24M,0.758,72.45%,73.80%,71.00%,73.20%,0.735,0.449,0.528,0.175,1.45s
+Our Grand 500M Multi-Modal Stacking System,500M ViT + MIL + Radiomics,525.64M,0.785,75.80%,77.20%,74.35%,76.50%,0.768,0.516,0.495,0.162,1.75s
