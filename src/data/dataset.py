@@ -51,13 +51,37 @@ class MGMTDataset(Dataset):
         vol[:, self.num_slices//4:3*self.num_slices//4, cy-r:cy+r, cx-r:cx+r] += 2.5
         return vol
 
+    def _load_dicom_series(self, series_dir: Path) -> np.ndarray:
+        """Loads num_slices evenly spaced slices from the central half of a DICOM series -> (S, H, W)."""
+        import pydicom
+        import torch.nn.functional as F
+        files = sorted(series_dir.glob("*.dcm"), key=lambda p: int(p.stem.split("-")[-1]))
+        if not files:
+            raise FileNotFoundError(f"No DICOM files in {series_dir}")
+        lo, hi = len(files) // 4, max(len(files) // 4 + 1, 3 * len(files) // 4)
+        picks = np.linspace(lo, hi - 1, self.num_slices).round().astype(int)
+        slices = [pydicom.dcmread(str(files[i])).pixel_array.astype(np.float32) for i in picks]
+        out = [F.interpolate(torch.from_numpy(s)[None, None], size=self.slice_size, mode="bilinear",
+                             align_corners=False)[0, 0].numpy() for s in slices]
+        return np.stack(out)
+
+    def _load_patient_volume(self, pid: str) -> np.ndarray:
+        """Real Kaggle RSNA-MICCAI layout: <data_root>/<pid>/{FLAIR,T1w,T1wCE,T2w}/Image-N.dcm -> (C, S, H, W)."""
+        patient_dir = self.data_root / pid
+        if not patient_dir.exists():
+            return self._load_mock_patient_volume(pid)
+        folder = {"T1": "T1w", "T1ce": "T1wCE", "T2": "T2w", "FLAIR": "FLAIR"}
+        return np.stack([self._load_dicom_series(patient_dir / folder[m]) for m in self.modalities])
+
     def __getitem__(self, idx: int) -> Dict[str, torch.Tensor]:
         pid = self.patient_ids[idx]
         label = self.labels.get(pid, 0)
-        
-        # Load or generate volume: shape (C, S, H, W)
-        vol = self._load_mock_patient_volume(pid)
-        
+
+        # Load volume (falls back to mock only when the patient folder is absent): shape (C, S, H, W)
+        vol = self._load_patient_volume(pid)
+        if self.is_training and np.random.rand() < 0.5:
+            vol = vol[..., ::-1].copy()
+
         # Z-score normalization per modality
         for c in range(vol.shape[0]):
             m = vol[c].mean()
