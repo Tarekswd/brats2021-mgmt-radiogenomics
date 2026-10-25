@@ -9,7 +9,7 @@ This produces the first **measured** results for this repository. Report only wh
 3. Under **Settings**, set the accelerator to **GPU** and turn **Internet on** (needed for `git clone`).
 4. Check the mount path, since it can differ:
    ```bash
-   !ls /kaggle/input/rsna-miccai-brain-tumor-radiogenomic-classification
+   !ls /kaggle/input/competitions/rsna-miccai-brain-tumor-radiogenomic-classification
    ```
    You should see `train/`, `test/` and `train_labels.csv`. Each `train/<BraTS21ID>/` folder holds `FLAIR/ T1w/ T1wCE/ T2w/` with `Image-N.dcm` files.
 
@@ -22,7 +22,7 @@ This produces the first **measured** results for this repository. Report only wh
 ```bash
 %%bash
 cd brats2021-mgmt-radiogenomics
-D=/kaggle/input/rsna-miccai-brain-tumor-radiogenomic-classification
+D=/kaggle/input/competitions/rsna-miccai-brain-tumor-radiogenomic-classification
 for F in 0 1 2 3 4; do
   python scripts/train_task2.py --data-root $D/train --labels-csv $D/train_labels.csv \
     --model attention_mil --fold $F --epochs 30 --batch-size 4 --num-slices 16 --slice-size 128 \
@@ -33,6 +33,8 @@ done
 - The script refuses to start if any labelled patient folder is missing. It never falls back to synthetic data when `--data-root` is given.
 - Patients `00109 00123 00709` are excluded by default (`--exclude`). Pass `--exclude` with no IDs to keep them.
 - Kaggle sessions have a time limit. Time the first epoch, then lower `--epochs`, or run one fold per session.
+- Measured on a Kaggle T4: one epoch of fold 0 (582-patient cohort, 16 slices at 128×128) took 61 s.
+- Kaggle copies the competition data into the session when you add it (about 137 GB). Expect a wait before the first cell runs.
 - Repeat with `--model cnn_lstm` for the second baseline.
 - The 500M model is **not** wired into `train_task2.py`. Training it needs a large GPU and code changes, so don't report numbers for it.
 
