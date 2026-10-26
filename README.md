@@ -4,17 +4,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-red.svg)](https://pytorch.org/)
-[![Status: Not yet trained on real data](https://img.shields.io/badge/Results-pending%20real--data%20training-lightgrey.svg)](CLOUD_TRAINING.md)
+[![Measured 5-fold ROC-AUC](https://img.shields.io/badge/5--fold%20ROC--AUC-0.566%20%C2%B1%200.039-lightgrey.svg)](results/measured/attention_mil_5fold_final_epoch.csv)
 
 **Author & Lead Researcher:** Tarek Al Ahmadieh  
 **Email:** tarek.ahmadieh2006@gmail.com  
 **Challenge:** RSNA-ASNR-MICCAI Brain Tumor Segmentation (BraTS) 2021 — Task 2 Radiogenomic Classification  
 **Target:** Non-invasive, pre-operative prediction of $O^6$-Methylguanine-DNA Methyltransferase (**MGMT**) promoter methylation status in glioblastoma patients using multi-parametric MRI (mpMRI: T1, T1ce, T2, FLAIR).
 
-> **Project status: no model has been trained or evaluated on the real BraTS 2021 / RSNA-MICCAI MGMT data yet.**
-> Every run so far used synthetic noise volumes with random labels, only to check that the code runs.
-> All metric tables, ROC and calibration figures, confusion matrices and `research_report.*` files in this repository are **illustrative placeholders, not measured results**.
-> Real numbers will be added after the cloud GPU runs described in [CLOUD_TRAINING.md](CLOUD_TRAINING.md).
+> **Project status: one real-data experiment so far** — Gated-Attention MIL, 5-fold cross-validation on the RSNA-MICCAI training set (see the table below).
+> The 500M model and the other baselines are implemented but **not yet trained on real data**.
+> The other metric tables, ROC and calibration figures, confusion matrices and `research_report.*` files are **illustrative placeholders, not measured results**. Only `results/measured/` holds measured numbers. See [CLOUD_TRAINING.md](CLOUD_TRAINING.md) to reproduce.
 
 ---
 
@@ -25,7 +24,7 @@
    - 3D Multi-Parametric Patch Embedding Projection capturing cross-sequence correlations across T1, T1ce, T2, and FLAIR.
    - Gated Attention Pooling mechanism for interpretable, slice-wise patient aggregation.
    - Implemented, not yet trained. The parameter count is computed by `tests/test_task2.py`.
-2. **Results**: pending. No validation metrics exist yet; see the status note above.
+2. **Results**: Gated-Attention MIL reaches 5-fold ROC-AUC 0.566 ± 0.039, only modestly above chance (0.5). See the table below.
 3. **Rigorous Patient-Level Zero-Leakage Cross-Validation**:
    - 5-fold stratified cross-validation at patient ID level (`src/data/splitting.py`), which asserts that no patient appears in both train and validation.
 4. **Implemented baselines (not yet benchmarked)**:
@@ -35,12 +34,16 @@
 
 ## Benchmark Comparison Table
 
-**No measured results yet.** After the real-data runs, this table will list the mean ± std validation ROC-AUC across the 5 patient-level folds, taken from `experiments/<run>/fold*/training_log.csv`.
+**Measured results** (validation metrics after the final epoch, mean ± std over 5 stratified patient-level folds; Kaggle T4 GPU, run on 2026-10-26):
 
-| Model | ROC-AUC (5-fold mean ± std) | Accuracy | Data |
-|:---|:---:|:---:|:---|
-| Gated-Attention MIL | pending | pending | RSNA-MICCAI labelled train set, minus 3 excluded IDs |
-| CNN-LSTM | pending | pending | same folds |
+| Model | Epochs | ROC-AUC | Accuracy | Sensitivity | Specificity | Data |
+|:---|:---:|:---:|:---:|:---:|:---:|:---|
+| Gated-Attention MIL (16 slices @ 128×128, 4 modalities) | 15 | 0.566 ± 0.039 | 0.579 ± 0.020 | 0.581 ± 0.092 | 0.576 ± 0.093 | RSNA-MICCAI labelled train set: 585 patients minus 3 excluded = 582 |
+| CNN-LSTM | – | not trained yet | | | | |
+| MGMT Foundation 500M | – | not trained yet | | | | |
+
+- Per-fold ROC-AUC: 0.585, 0.515, 0.619, 0.559, 0.551. Per-fold rows: [`results/measured/attention_mil_5fold_final_epoch.csv`](results/measured/attention_mil_5fold_final_epoch.csv).
+- These are cross-validation scores on the public training set, not the challenge's hidden test set.
 
 ---
 
