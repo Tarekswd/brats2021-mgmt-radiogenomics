@@ -13,7 +13,7 @@
 
 > **Project status: one real-data experiment so far** — Gated-Attention MIL, 5-fold cross-validation on the RSNA-MICCAI training set (see the table below).
 > The 500M model and the other baselines are implemented but **not yet trained on real data**.
-> The other metric tables, ROC and calibration figures, confusion matrices and `research_report.*` files are **illustrative placeholders, not measured results**. Only `results/measured/` holds measured numbers. See [CLOUD_TRAINING.md](CLOUD_TRAINING.md) to reproduce.
+> Earlier versions of this repository contained invented benchmark tables, ROC/calibration figures, confusion matrices and a research report; they have been removed. Measured numbers live only in `results/measured/`. See [CLOUD_TRAINING.md](CLOUD_TRAINING.md) to reproduce.
 
 ---
 
@@ -52,34 +52,27 @@
 ```
 brats2021-mgmt-radiogenomics/
 ├── configs/
-│   └── mgmt_500m.yaml             # Model hyperparameters and training config
-├── data/                          # Dataset directory (BraTS 2021 mpMRI volumes)
+│   └── mgmt_500m.yaml             # 500M model hyperparameters
+├── data/                          # Empty; point --data-root at the Kaggle data instead
 ├── results/
-│   ├── figures/                   # Confusion matrix, ROC curves, calibration curves
-│   ├── metrics/                   # Comprehensive CSV & MD comparison tables
-│   └── explainability/            # Slice-level attention maps & grad-CAM
+│   └── measured/                  # Measured metrics from real-data runs
 ├── scripts/
-│   ├── train_task2.py             # Real-data training (see CLOUD_TRAINING.md)
-│   ├── generate_task2_benchmark.py # Draws PLACEHOLDER tables/figures (not measured)
-│   ├── generate_confusion_matrix_and_metrics.py
-│   └── convert_task2_report_to_pdf.py
+│   └── train_task2.py             # Real-data training (see CLOUD_TRAINING.md)
 ├── src/
-│   ├── datasets/                  # Zero-leakage patient-level dataset loaders
+│   ├── data/                      # DICOM loader and patient-level stratified folds
 │   ├── evaluation/                # ROC-AUC, Brier score, accuracy, log-loss metrics
-│   ├── models/                    # 500M Foundation ViT, CNN-LSTM, Attention MIL, EffNet
-│   │   ├── mgmt_500m.py           # Flagship 500M Foundation Model (501.24M params)
-│   │   ├── cnn_lstm.py            # 2nd Place baseline
-│   │   ├── attention_mil.py       # Multiple Instance Learning baseline
-│   │   └── efficientnet_modality.py # 3rd Place modality-specific baseline
-│   └── radiomics/                 # First-order, GLCM texture, and 3D shape morphology
+│   ├── models/
+│   │   ├── mgmt_500m.py           # 500M-parameter transformer (implemented, not trained)
+│   │   ├── cnn_lstm.py            # CNN-LSTM baseline
+│   │   ├── attention_mil.py       # Gated-Attention MIL (the model behind the measured result)
+│   │   └── efficientnet_modality.py # Modality-specific baseline
+│   └── radiomics/                 # First-order, GLCM texture, and 3D shape features
 ├── tests/
-│   └── test_task2.py              # Complete unit test suite (8/8 passing)
-├── research_report.md             # Complete academic research paper
-├── research_report.pdf            # Publication PDF report
+│   └── test_task2.py              # Unit tests (8 tests)
 ├── brats2021_models.py            # Standalone single-file model import
-├── requirements.txt               # Dependencies
-├── environment.yml                # Conda environment definition
-└── LICENSE                        # MIT License
+├── CLOUD_TRAINING.md              # How to train on a Kaggle GPU
+├── requirements.txt
+└── LICENSE
 ```
 
 ---
